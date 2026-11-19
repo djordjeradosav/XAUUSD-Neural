@@ -1,0 +1,18 @@
+# private market data and generated artifacts
+dataset/
+code/dataset/
+rezultati_notebook_rr/
+*.keras
+*.joblib
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Jupyter / OS
+.ipynb_checkpoints/
+.DS_Store
