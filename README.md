@@ -70,6 +70,8 @@ jupyter lab notebooks/02_lstm_rr12_1h_full.ipynb
 python -m xauusd_neural.synthetic --out dataset
 ```
 
+All three notebooks run end to end on the synthetic dataset. One exception: in notebook 02, the walk-forward cell (`RUN_WALK_FORWARD = True`) can stop with `Nijedan threshold par nema minimalan broj trejdova`. This happens when a fold's model on random-walk data produces too few confident signals. Set the flag to `False` to skip it.
+
 Expected files in `dataset/` (matched by substring, case-insensitive): `XAUUSD60.csv`, `XAUUSD1440.csv`, `BTCUSD1440*.csv` (MT5, tab-separated, no header), `*US_Dollar_Index*`, `*Volatility_Index*` and `*WTI*` (Investing.com), and `*US10YN*`, `*CPI*`, `*PPI*` and `*NFP*` (FRED, `observation_date,<series>`). Market data is not included in the repository.
 
 Disclaimer: research and educational code, not financial advice.
