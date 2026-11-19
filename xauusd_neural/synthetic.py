@@ -50,8 +50,19 @@ def _write_fred(s, name, path):
         path, index=False)
 
 
-def make_synthetic_dataset(out_dir, start="2016-01-01", end="2026-11-05", seed=0):
+FILES = (
+    "XAUUSD60.csv", "XAUUSD1440.csv", "BTCUSD1440.csv",
+    "US_Dollar_Index_Historical_Data.csv", "CBOE_Volatility_Index_Historical_Data.csv",
+    "Crude_Oil_WTI_Futures_Historical_Data.csv", "US10YN.csv", "CPI.csv", "PPI.csv", "NFP.csv",
+)
+
+
+def make_synthetic_dataset(out_dir, start="2016-01-01", end="2026-11-05", seed=0, overwrite=False):
     out = Path(out_dir)
+    existing = [f for f in FILES if (out / f).exists()]
+    if existing and not overwrite:
+        raise FileExistsError(f"{out} already contains {', '.join(existing)}; "
+                              "refusing to overwrite (use overwrite=True / --force)")
     out.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(seed)
 
@@ -62,7 +73,8 @@ def make_synthetic_dataset(out_dir, start="2016-01-01", end="2026-11-05", seed=0
     _write_mt5(gold_1h, out / "XAUUSD60.csv")
     _write_mt5(gold_1d, out / "XAUUSD1440.csv")
 
-    btc_days = pd.date_range("2017-05-23", end, freq="D")
+    btc_start = max(pd.Timestamp(start), pd.Timestamp("2017-05-23"))
+    btc_days = pd.date_range(btc_start if btc_start < pd.Timestamp(end) else start, end, freq="D")
     btc = _ohlc_from_path(btc_days, _random_walk(len(btc_days), 2000.0, 0.03, rng), rng, 0.01)
     _write_mt5(btc, out / "BTCUSD1440.csv")
 
@@ -90,8 +102,10 @@ def main():
     ap.add_argument("--start", default="2016-01-01")
     ap.add_argument("--end", default="2026-11-05")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--force", action="store_true", help="overwrite existing files in --out")
     a = ap.parse_args()
-    print("Synthetic dataset written to", make_synthetic_dataset(a.out, a.start, a.end, a.seed).resolve())
+    out = make_synthetic_dataset(a.out, a.start, a.end, a.seed, overwrite=a.force)
+    print("Synthetic dataset written to", out.resolve())
 
 
 if __name__ == "__main__":
